@@ -1,17 +1,26 @@
 package com.epam.brest.courses.dao;
 
 import com.epam.brest.courses.model.Department;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 public class DepartmentJdbcDaoImpl implements DepartmentDao {
-private static final Logger LOGGER = LoggerFactory.getLogger(DepartmentJdbcDaoImpl.class);
+
+   // private static final Logger LOGGER = LoggerFactory.getLogger(DepartmentJdbcDaoImpl.class);
+
+    static final Logger rootLogger = LogManager.getRootLogger();
+    static final Logger LOGGER = LogManager.getLogger(DepartmentJdbcDaoImpl.class);
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public DepartmentJdbcDaoImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -20,7 +29,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(DepartmentJdbcDaoIm
 
     @Override
     public List<Department> getDepartments() {
-        LOGGER.trace("Get all dpm");
+        LOGGER.info("Get all dpm");
         List<Department> departments = namedParameterJdbcTemplate
                 .query("SELECT d.departmentId, d.departmentName FROM department d ORDER BY d.departmentName", new DepartmentRowMapper());
         return departments;
