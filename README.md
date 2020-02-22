@@ -1,1 +1,1 @@
-# avaryvada-dpm
+# avaryvada-department-management
