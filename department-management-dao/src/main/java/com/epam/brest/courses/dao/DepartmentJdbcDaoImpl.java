@@ -4,14 +4,17 @@ import com.epam.brest.courses.model.Department;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -35,24 +38,28 @@ public class DepartmentJdbcDaoImpl implements DepartmentDao {
                 .query("SELECT d.departmentId, d.departmentName FROM department d ORDER BY d.departmentName", new DepartmentRowMapper());
         return departments;
     }
-
+//https://www.codeflow.site/ru/article/spring-jdbc-jdbctemplate
     @Override
     public Department getDepartmentById(Integer departmentId) {
-        return null;
+
+        SqlParameterSource idParameter = new MapSqlParameterSource().addValue("departmentId", departmentId);
+        return namedParameterJdbcTemplate.queryForObject(
+                "SELECT * FROM department WHERE departmentId = :departmentId", idParameter, new DepartmentRowMapper());
     }
 
     // help link https://netjs.blogspot.com/2016/11/insert-update-using-namedparameterjdbctemplate-spring.html
     @Override
-    public int addDepartment(Department department) {
+    public Department addDepartment(Department department) {
 
         String insertSql = "insert into department (departmentName) values(:name)";
 
-        // Creating map with all required params
-        HashMap<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("name", department.getDepartmentName());
-        // Passing map containing named params
-        return namedParameterJdbcTemplate.update(insertSql, paramMap);
+        SqlParameterSource nameParameter = new MapSqlParameterSource().addValue("departmentName", department.getDepartmentName());
 
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        namedParameterJdbcTemplate.update(insertSql, nameParameter, keyHolder);
+        department.setDepartmentId(keyHolder.getKey().intValue());
+
+        return new Department();
 
     }
 
